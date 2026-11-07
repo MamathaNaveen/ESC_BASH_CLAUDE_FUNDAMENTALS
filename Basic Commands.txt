@@ -10,14 +10,14 @@ cat > /root/permproj/.claude/settings.json <<'EOF'
   }
 }
 EOF
-==============================================================================
+==========================Interactive Mode====================================================
 Non-interactive mode:
 mkdir -p /root/dns
 claude -p "Explain what DNS is in one sentence." --output-format json > /root/dns/answer.json
 jq -r '.result' /root/dns/answer.json > /root/dns/answer.txt
 
 
-==============================================================================
+=========================PermissionMode acceptEdits=====================================================
 
 cat > /root/brief.md <<'EOF'
 Goal: a greeting script for our servers.
@@ -27,12 +27,53 @@ and it exits 0.
 EOF
 claude -p --permission-mode acceptEdits "Build the script described in /root/brief.md"
 
-==============================================================================
+===================================MEMORY===========================================
 CLAUDE.MD file is memory or something that sets envirnoment. If empty init it will generate default one. 
 for Agents this file is needed to come up with conext before addressing user queries.
 
 ================================================================================
-
+Context window:
 The rule of thumb: different task, /clear; same task, /compact. When in doubt on a fresh problem, /clear gives Claude the cleanest possible start.
+
+===================================Permission mode Plan=============================================
+claude -p --permission-mode plan "Add retry logic to the API client"
+in console pressing shift+tab enter "plan mode"
+
+===================================Claude within GIT=============================================
+mkdir -p /root/gitproj
+cd /root/gitproj
+git init
+echo "# Notes" > notes.md
+git add notes.md
+git commit -m "initial commit"
+echo "- remember to review diffs before committing" >> notes.mdgit config user.email "you@example.com"
+git config user.name "Lab User"
+cd /root/gitproj && claude
+Stage the change to notes.md and commit it with a clear message based on the diff.
+root@escbash-lab:~/gitproj# git -C /root/gitproj log --oneline
+7023e2c (HEAD -> master
+) Add reminder to review diffs before committin
+g
+5d92ab2 Initial commit
+root@escbash-lab:~/gitproj# 
+
+=======================================CUSTOM SLASH Command================================================
+Location	Scope
+.claude/commands/<name>.md	Project - shared with anyone who clones the repo
+~/.claude/commands/<name>.md	User - available in every project you open
+
+There is no special language here. Whatever you write in the body is the prompt Claude receives when you run the command. A review.md might contain:
+Review the staged changes with `git diff --staged` and flag any bugs,
+missing error handling, or secrets that would be risky to commit.
+Now typing /review sends exactly that prompt.
+
+Use $ARGUMENTS and whatever you type after the command name gets substituted in. A fix.md containing:
+
+Find and fix the bug described here: $ARGUMENTS
+lets you run /fix the login form rejects valid emails, and that text lands where $ARGUMENTS sits.
+
+
+
+
 
 
