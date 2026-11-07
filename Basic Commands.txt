@@ -1,0 +1,34 @@
+Permissions Config:
+mkdir -p /root/permproj/.claude
+cat > /root/permproj/.claude/settings.json <<'EOF'
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(git status:*)"
+    ]
+  }
+}
+EOF
+==============================================================================
+Non-interactive mode:
+mkdir -p /root/dns
+claude -p "Explain what DNS is in one sentence." --output-format json > /root/dns/answer.json
+jq -r '.result' /root/dns/answer.json > /root/dns/answer.txt
+
+
+==============================================================================
+
+cat > /root/brief.md <<'EOF'
+Goal: a greeting script for our servers.
+Target file: /root/greet.sh
+Done when: running it prints "Hello from <hostname>" using the real hostname,
+and it exits 0.
+EOF
+claude -p --permission-mode acceptEdits "Build the script described in /root/brief.md"
+
+==============================================================================
+CLAUDE.MD file is memory or something that sets envirnoment. If empty init it will generate default one. 
+for Agents this file is needed to come up with conext before addressing user queries.
+
+================================================================================
