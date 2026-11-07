@@ -32,3 +32,7 @@ CLAUDE.MD file is memory or something that sets envirnoment. If empty init it wi
 for Agents this file is needed to come up with conext before addressing user queries.
 
 ================================================================================
+
+The rule of thumb: different task, /clear; same task, /compact. When in doubt on a fresh problem, /clear gives Claude the cleanest possible start.
+
+
