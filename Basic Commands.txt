@@ -72,8 +72,95 @@ Use $ARGUMENTS and whatever you type after the command name gets substituted in.
 Find and fix the bug described here: $ARGUMENTS
 lets you run /fix the login form rejects valid emails, and that text lands where $ARGUMENTS sits.
 
+=======================================Claude Agents =================================
+Cerate ~/.claude/commands/agents/<>.md once created. reload claude and it should list, if no ask claude to recognise it by providing path. It does exit and reload claude 
+Agent is ready by running 
+claude --agent review. it opens session with review context in memory.
+
+========================================Hooks =========================================
+Each hook is tied to an event. The common ones:
+PreToolUse	:      Before a tool runs - can block it
+PostToolUse	:      After a tool finishes
+UserPromptSubmit:	 When you submit a prompt
+Stop:          	   When Claude finishes responding
+SessionStart:      When a session begins
+
+Below commands tells if any file is edit post tool use print the edited file path. 
+Hooks live in settings.json under a hooks key.
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+       "matcher": "Edit",
+        "hooks": [
+          { "type": "command", "command": "jq -r '.tool_input.file_path'" }
+        ]
+      }
+    ]
+  }
+}
+Asked claude to recognise hooks and later it started working. Just claude launch didnt launch hooks !! Need to check why 
+
+=========================================MCP Servers =============================================
+MCP stands for Model Context Protocol. It is a standard way to plug extra tools and data sources into Claude Code. Instead of building every integration into the CLI, Claude talks to small external programs called MCP servers, and each server exposes a set of tools Claude can call.
+claude mcp add files -- npx -y @modelcontextprotocol/server-filesystem /root
+
+New Task: (npx is mcp server installer from node.js)
+root@escbash-lab:~/mcpproj# claude mcp add --scope user files -- npx -y @modelcontextprotocol/server-filesystem /root/mcpproj
+Added stdio MCP server files with command: npx -y @modelcontextprotocol/server-filesystem /root/mcpproj to user config
+File modified: /root/.claude.json
+root@escbash-lab:~/mcpproj#
 
 
+root@escbash-lab:~/mcpproj# claude -p mcp list
+This session has one MCP server connected: **files** (the filesystem MCP server) — it exposes no named resources, but it does provide a set of file tools (`mcp__files__*`): read/write/edit files, list directories, search, copy/move, etc., restricted to its allowed directories.
+
+What would you like to do with MCP? For example:
+
+- Inspect the server config (e.g. `.mcp.json` or `mcp` settings in `.claude/settings.json`)
+- Check which directories the files server is allowed to access
+- Add/configure a new MCP server
+- Test the connected tools
+
+Just let me know what you're after — or type `/mcp` in the CLI to open the MCP management UI.
+root@escbash-lab:~/mcpproj#
+
+======================Settings ================================================
+Three common files
+File	Scope	Committed to git?
+~/.claude/settings.json	Your user defaults, every project	No, it is your home dir
+.claude/settings.json	This project, shared with the team	Yes, commit it
+.claude/settings.local.json	This project, just you	No, it is gitignored
+example:
+{
+        "model": "sonnet",
+        "permissions": {
+                "allow": ["Read", "Bash(git status:*)"]
+        }
+}
+
+
+{
+  "model": "sonnet",
+  "permissions": {
+    "allow": ["Bash(git status:*)", "Read", "Edit"],
+    "deny": ["Bash(rm:*)"]
+  },
+  "env": { "MY_FLAG": "1" },
+  "hooks": { }
+}
+
+=====================claude -p==================
+root@escbash-lab:~/auto# cat classify.sh 
+#!/usr/bin/env bash
+line="$1"
+claude -p "Classify this line as INFO or ERROR, reply with with one word: $line"  --output-format json |jq -r '.result' > /root/auto/out.txt
+
+========Project
+root@escbash-lab:~/setupme/.claude# cat settings.json 
+{
+        "permissions.allow": ["Bash(python3:*)"]
+}
 
 
 
